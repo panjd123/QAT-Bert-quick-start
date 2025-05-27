@@ -119,5 +119,5 @@ def get_dataloader(data_path, vocab, batch_size=32, shuffle=True, doc1_max_len=6
         dataset,
         batch_size=batch_size,
         shuffle=shuffle,
-        num_workers=4
+        num_workers=8
     ) 

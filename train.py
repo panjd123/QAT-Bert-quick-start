@@ -29,7 +29,7 @@ def train(model, train_loader, optimizer, criterion, device):
         loss.backward()
         optimizer.step()
         
-        total_loss += loss.item()
+        total_loss += loss.detach().item()
     
     return total_loss / len(train_loader)
 
@@ -102,8 +102,8 @@ def main():
         config=config
     ).to(device)
     
-    checkpoint = torch.load('checkpoints/best_model.pth', map_location=device)
-    model.load_state_dict(checkpoint['model_state_dict'])
+    # checkpoint = torch.load('checkpoints/best_model.pth', map_location=device, weights_only=False)
+    # model.load_state_dict(checkpoint['model_state_dict'])
     
     # 设置优化器和损失函数
     optimizer = optim.AdamW(model.parameters(), lr=config.learning_rate)

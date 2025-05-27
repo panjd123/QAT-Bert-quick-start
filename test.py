@@ -10,7 +10,7 @@ from config import ModelConfig
 from scipy.stats import spearmanr
 
 def load_model(model_path, device):
-    checkpoint = torch.load(model_path, map_location=device)
+    checkpoint = torch.load(model_path, map_location=device, weights_only=False)
     vocab = checkpoint['vocab']
     config = checkpoint['config']
     
@@ -84,7 +84,7 @@ def main():
     
     # 打印一些验证集样本的预测结果
     print("\n验证集样本预测结果：")
-    for i in range(min(5, len(dev_dataset))):
+    for i in np.random.choice(len(dev_dataset), size=min(5, len(dev_dataset)), replace=False):
         sample = dev_dataset[i]
         pred = dev_preds[i]
         true = dev_labels[i]
@@ -98,16 +98,20 @@ def main():
     print("\n自定义测试用例：")
     test_cases = [
         {
-            "doc1": "The cat is sitting on the mat.",
-            "doc2": "A cat is lying on the carpet."
+            "doc1": "The cat is sitting on the mat",
+            "doc2": "A cat is lying on the carpet"
         },
         {
-            "doc1": "The weather is beautiful today.",
-            "doc2": "It's raining heavily outside."
+            "doc1": "The weather is beautiful today",
+            "doc2": "It's raining heavily outside"
         },
         {
-            "doc1": "I love reading science fiction novels.",
-            "doc2": "Reading books is my favorite hobby."
+            "doc1": "I love reading science fiction novels",
+            "doc2": "Reading books is my favorite hobby"
+        },
+        {
+            "doc1": "There is no person playing a piano",
+            "doc2": "A person is slicing a potato"
         }
     ]
     

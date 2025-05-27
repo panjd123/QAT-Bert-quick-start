@@ -75,6 +75,10 @@ class TransformerEncoderLayer(nn.Module):
         x = self.norm2(x + self.dropout(ff_output))
         return x
 
+class FirstColumn(nn.Module):
+    def forward(self, x):
+        return x[:, 0]
+
 class DocumentSimilarityModel(nn.Module):
     def __init__(self, vocab_size, config: ModelConfig):
         super().__init__()
@@ -97,21 +101,24 @@ class DocumentSimilarityModel(nn.Module):
             for _ in range(config.num_layers)
         ])
         
-        # 相似度计算层
-        similarity_layers = []
-        prev_dim = config.total_dim
-        for hidden_dim in config.similarity_hidden_dims:
-            similarity_layers.extend([
-                nn.Linear(prev_dim, hidden_dim),
-                config.get_activation(),
-                nn.Dropout(config.dropout)
-            ])
-            prev_dim = hidden_dim
-        
-        similarity_layers.append(nn.Linear(prev_dim, 1))
-        similarity_layers.append(nn.Sigmoid())
-        
-        self.similarity = nn.Sequential(*similarity_layers)
+        if config.similarity_hidden_dims is None:
+            self.similarity = FirstColumn()
+        else:
+            # 相似度计算层
+            similarity_layers = []
+            prev_dim = config.total_dim
+            for hidden_dim in config.similarity_hidden_dims:
+                similarity_layers.extend([
+                    nn.Linear(prev_dim, hidden_dim),
+                    config.get_activation(),
+                    nn.Dropout(config.dropout)
+                ])
+                prev_dim = hidden_dim
+            
+            similarity_layers.append(nn.Linear(prev_dim, 1))
+            similarity_layers.append(nn.Sigmoid())
+            
+            self.similarity = nn.Sequential(*similarity_layers)
         
     def forward(self, doc1_ids, doc2_ids):
         # 将两个文档的ID连接在一起
